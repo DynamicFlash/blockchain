@@ -29,6 +29,7 @@ class Blockchain:
         check_proof = False
         
         while check_proof is False: 
+            #hashing.sha256(String)
             hash_operation = hashing.sha256(str(new_proof**3 - previous_proof**2).encode()).hexdigest()
             if hash_operation[:4] is "0000":
                 check_proof = True
@@ -38,6 +39,7 @@ class Blockchain:
         return new_proof
     
     def hash(self, block):
+        #json.dump coverts dictionary to string
         encoded_block = json.dumps(block, sorted_keys = True).encode()
         return hashing.sha256(encoded_block).hexdigest()
     
@@ -56,3 +58,24 @@ class Blockchain:
             previous_block = block
             block_index += 1
         return True
+
+#Creating the app
+app = Flask(__name__)
+
+#creating an instance
+blockchain = Blockchain()
+
+@app.route('/mining', methods = ['GET'])
+def mining():
+    previous_block = blockchain.get_previous_block()
+    previous_proof = previous_block['proof']
+    proof = blockchain.proof_of_work(previous_proof)
+    block = blockchain.create_block(proof,previous_proof)
+    data ={ 'message' : "CONGRATULATIONS",
+           'index' : block['index'],
+           'proof' : proof,
+           'timestamp' : block['time'],
+           'previous_hash' : block['previous_hash']
+           
+            }
+    return jsonify(data), 200
