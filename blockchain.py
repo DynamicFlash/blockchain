@@ -70,12 +70,21 @@ def mining():
     previous_block = blockchain.get_previous_block()
     previous_proof = previous_block['proof']
     proof = blockchain.proof_of_work(previous_proof)
-    block = blockchain.create_block(proof,previous_proof)
+    previous_hash = blockchain.hash(previous_block)
+    block = blockchain.create_block(proof,previous_hash)
     data ={ 'message' : "CONGRATULATIONS",
            'index' : block['index'],
            'proof' : proof,
            'timestamp' : block['time'],
            'previous_hash' : block['previous_hash']
-           
             }
     return jsonify(data), 200
+
+@app.route('/getChain', methods = ['GET'])
+def getChain():
+    response = {    'chain' :   blockchain.chain,
+                    'length':   len(blockchain.chain)
+            }
+    return jsonify(response),200
+
+app.run(host = '127.0.0.1',   port = 5000)
