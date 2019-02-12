@@ -14,7 +14,7 @@ class Blockchain:
     
     def create_block(self, proof, previous_hash):
         block = {'index' : len(self.chain)+1, 
-                 'timestap': str(datetime.datetime.now()),
+                 'timestamp': str(datetime.datetime.now()),
                  'proof' : proof,
                  'previous_hash' : previous_hash
                  }
@@ -30,8 +30,8 @@ class Blockchain:
         
         while check_proof is False: 
             #hashing.sha256(String)
-            hash_operation = hashing.sha256(str(new_proof**3 - previous_proof**2).encode()).hexdigest()
-            if hash_operation[:4] is "0000":
+            hash_operation = hashing.sha256(str(new_proof**2 - previous_proof**2).encode()).hexdigest()
+            if hash_operation[:4] == "0000":
                 check_proof = True
             else:
                 new_proof+=1
@@ -40,7 +40,7 @@ class Blockchain:
     
     def hash(self, block):
         #json.dump coverts dictionary to string
-        encoded_block = json.dumps(block, sorted_keys = True).encode()
+        encoded_block = json.dumps(block, sort_keys = True).encode()
         return hashing.sha256(encoded_block).hexdigest()
     
     def is_chain_valid(self, chain):
@@ -72,10 +72,10 @@ def mining():
     proof = blockchain.proof_of_work(previous_proof)
     previous_hash = blockchain.hash(previous_block)
     block = blockchain.create_block(proof,previous_hash)
-    data ={ 'message' : "CONGRATULATIONS",
+    data ={ 'message' : 'CONGRATULATIONS',
            'index' : block['index'],
-           'proof' : proof,
-           'timestamp' : block['time'],
+           'proof' : block['proof'],
+           'timestamp' : block['timestamp'],
            'previous_hash' : block['previous_hash']
             }
     return jsonify(data), 200
@@ -87,4 +87,5 @@ def getChain():
             }
     return jsonify(response),200
 
-app.run(host = '127.0.0.1',   port = 5000)
+
+app.run( host = '0.0.0.0', port = 5000)
